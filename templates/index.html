@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 데이터</title>
+</head>
+<body>
+    <h1>실시간 패킷 데이터</h1>
+    <div id="data"></div>
+
+    <script>
+        var eventSource = new EventSource('/send_packet');
+        
+        eventSource.onmessage = function(event) {
+            //console.log(event.data);  // 전체 데이터 (여러 줄)
+    
+            // 'data'라는 ID를 가진 요소 가져오기
+            const dataElement = document.getElementById('data');
+            
+            // 받은 data를 줄 단위로 나누기
+            const packetData = event.data.split('/n/n');  // 줄바꿈을 기준으로 나누기
+            console.log(packetData, "!!")
+            packetData.forEach(item => {
+                item = item.trim();  // 앞뒤 공백 제거
+    
+                if (item.length > 0) {
+                    // 새로운 <div> 요소 생성
+                    const newDiv = document.createElement('div');
+                    newDiv.textContent = '패킷: ' + item;
+    
+                    // 'data' 요소에 새로운 <div> 추가
+                    dataElement.appendChild(newDiv);
+                }
+            });
+        };
+        eventSource.onerror = function(event) {
+            console.error("SSE 오류:", event);
+        };
+    </script>
+    
+</body>
+</html>
