@@ -1,5 +1,5 @@
 import pyshark
-from module import get_sysinfo
+from module import system_utils
 import re
 import json
 import logging
@@ -7,7 +7,7 @@ import logging
 #<-----------------------------------------------------Packet Process------------------------------------------------------------>
 
 logging.basicConfig(level=logging.CRITICAL)
-interface = get_sysinfo.get_interface()
+system = system_utils
 
 def trans_json(data : str) -> json:
     data_json = {}
@@ -40,8 +40,9 @@ def trans_data(data : str) -> str:
     data = data.replace("\n:", "\n")
     return data
 
+@system.log_event(log_type="packet")
 def get_packet() -> json:
-    get_sniff = pyshark.LiveCapture(interface=interface)
+    get_sniff = pyshark.LiveCapture(interface=system.get_interface())
     for packet in get_sniff.sniff_continuously(packet_count=1):
         packet = trans_data(str(packet))
         packet = trans_json(packet)

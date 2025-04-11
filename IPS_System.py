@@ -1,19 +1,20 @@
 from flask import Flask, render_template, Response, request
 from collections import deque
-from module import detection_offensive
+from module import network_utils, system_utils
 import threading
-import time
-
 
 packet_queue = deque()
 event_queue = deque()
 
 app = Flask(__name__)
-        
+system = system_utils
+
+
 #<--------------------------------------------------------Web Service------------------------------------------------------------>
 
 @app.before_request
-def acsses_ctl():
+@system.log_event(log_type="access")
+def accses_ctl():
     with open("data/Access_list", 'r') as Access_list:
         Access_list = Access_list.read().split()
         if request.remote_addr not in Access_list:
@@ -38,16 +39,36 @@ def pop_queue():
 
 #<-------------------------------------------------------Thread Process----------------------------------------------------------->
 
+@system.log_event(log_type="system")
+def app_thread():
+    app.run(host='0.0.0.0', threaded=True ,port=8000)
+
+@system.log_event(log_type="system") 
 def packet_thread():
     global packet_queue
     while True:
-        data = detection_offensive.get_packet()
+        data = network_utils.get_packet()
         packet_queue.append(data)
 
 #<-------------------------------------------------------Management Main----------------------------------------------------------->
 
-if __name__ == '__main__':
-    packet_proccess = threading.Thread(target=packet_thread, daemon=True)
-    packet_proccess.start()
+@system.log_event(log_type="system")
+def main():
+    try:
+        packet_proccess = threading.Thread(target=packet_thread, daemon=True)
+        packet_proccess.start()
+        
+        app_process = threading.Thread(target=app_thread)
+        app_process.start()
     
-    app.run(host='0.0.0.0', threaded = True ,port=8000)
+    except KeyboardInterrupt:
+        return f"Application stopped due to (Ctrl + C)"
+    
+    except SystemExit as e:
+        return f"Application stopped {e})"
+    
+    except Exception as e:
+        return f"Application stopped due to error: {e}"
+
+if __name__ == '__main__':
+    main()
