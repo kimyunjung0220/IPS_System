@@ -1,4 +1,4 @@
-## 🚩 Welcome!
+## 🎓 Welcome!
 
 **이 프로젝트는 Linux 기반의 IPS(Intrusion Prevention System)를 제작하는 대학 프로젝트입니다.**  
 **자세한 로드맵은 아래를 확인해 주시고, 업데이트 사항은 `Releases` 탭을 참고해주세요.**
@@ -28,7 +28,7 @@
 
 ---
 
-## 🏗️ 개발 로드맵
+##  🚩 개발 로드맵
 
 > **개발 환경**: Ubuntu 22.04.05  
 > **사용 언어**: Python  
