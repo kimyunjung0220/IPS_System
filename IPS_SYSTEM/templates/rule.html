@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RULE</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rule.css') }}">
+    
+</head>
+<body>
+    <header>
+        <div class="logo">IPS System</div>
+        <div class="header-title">규칙 관리</div>
+        <div class="user-info">
+            <span>{{ username or "Error" }} | {{ userpermit or "Error" }}</span>
+            <div class="menu">
+                <input type="checkbox" id="menu-toggle">
+                <label for="menu-toggle" class="menu-icon">☰</label>
+                <div class="sidebar">
+                    <p class="sidebar-user">{{ username or "Error" }}</p>
+                    <a href="/logout">로그아웃</a>
+                    <a href="/">Network Monitor</a>
+                    {% if Admin %}
+                    <a href="/admin_pages">관리자 페이지</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class = "dashboard">
+        <div class = "rule_board"> 
+            <div class = "rule_title">Rule List</div>
+            <form method="post" name="add_rule">
+                <div id="rule-container">
+                    <div class="dropdown">
+                        <select name="rule">
+                            <option value="Detect">탐지</option>
+                            <option value="Drop">차단</option>
+                            <option value="Detect-Drop">탐지/차단</option>
+                        </select>
+                    </div>
+                    <label class= "add_label"for="add">
+                        ADD
+                    </label>
+                    <input type="text" name = "input_rule" id="itemInput" placeholder="규칙 내용" required>
+                    <button type = "submit" name = "flag" value = "add_rule" id="addBtn">✚</button>
+                    <button id="Help">?</button>
+                </div>
+                </form>
+            <div class = "rule_element"></div>
+                <div id="rule">
+                    <ul id="itemList"></ul>
+                </div>
+            </div>
+        </div>
+        </div>
+        {% if msg %} 
+            <script>
+                alert("{{ msg }}");
+            </script>
+        {% endif %}
+    </div>
+</body>
+<script src="{{ url_for('static', filename='js/rule.js') }}"></script>
+</html>

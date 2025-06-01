@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+     <header>
+        <div class="logo">IPS System</div>
+        <div class="header-title">관리자 페이지</div>
+        <div class="user-info">
+            <span>{{ username or "Error" }} | {{ userpermit or "Error" }}</span>
+            <div class="menu">
+                <input type="checkbox" id="menu-toggle">
+                <label for="menu-toggle" class="menu-icon">☰</label>
+                <div class="sidebar">
+                    <p class="sidebar-user">{{ username or "Error" }}</p>
+                    <a href="/logout">로그아웃</a>
+                    <a href="/">Network Monitor</a>
+                    <a href="/rule">규칙 관리</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="dashboard">
+        <div class="account_board"> 
+            <div class="packet_title">Account List</div>
+            <form method="post" id="add_member">
+                <div id="account-container">
+                    <input type="text" name= "add_name" id="add_name" placeholder="계정 이름" required>
+                    <input type="text" name = "add_id" id="add_id" placeholder="ID" required>
+                    <input type="text" name = "add_passwd" id="add_passwd" placeholder="비밀번호" required>
+                    <select name="add_permit" id="add_permit">
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Super">Super</option>
+                    </select>
+                    <button type="submit" name="flag" value="add_member">추가</button>        
+                </div>
+            </form> 
+            <table border="1" id="list_table">
+                <thead>
+                    <tr>
+                        <th>계정 이름</th>
+                        <th>ID</th>
+                        <th>권한</th>
+                        <th>삭제</th>
+                    </tr>
+                </thead>
+                <tbody id="account_list">
+                    <!-- 데이터가 여기에 추가됨 -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="rule_board"> 
+            <div class="packet_title">White List</div>
+            <form method="POST">
+                <div id="rule-container">
+                    <input type="text" name = "add_white" id="ipInput" placeholder="add IP" required>
+                    <button type="submit" name="flag" value="add_ip">✚</button>
+                    <button id="Help" type="button">?</button>
+                </div>
+            </form>
+            <table border="1" id="black_table">
+                <thead>
+                    <tr>
+                        <th style="width: 37vw;">IP</th>
+                        <th>삭제</th>
+                    </tr>
+                </thead>
+                <tbody id="white_list">
+                    <!-- 데이터가 여기에 추가됨 -->
+                </tbody>
+            </table>        
+        </div>
+    </div>
+
+    {% if msg %} 
+    <script>
+        alert("{{ msg }}");
+    </script>
+    {% endif %}
+</body>
+</html>

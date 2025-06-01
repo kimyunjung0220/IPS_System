@@ -1,0 +1,242 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Header */
+header {
+    width: 100vw;
+    height: 10vh;
+    background-color: #0f4c81;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2vw;
+    color: white;
+}
+.logo {
+    font-size: 2.5vh;
+    font-weight: bold;
+}
+.header-title {
+    font-size: 3vh;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+.menu-icon {
+    cursor: pointer;
+    font-size: 3vh;
+}
+.sidebar {
+    position: fixed;
+    top: 10vh;
+    right: 0;
+    width: 25vw;
+    height: 90vh;
+    background-color: #ffffff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    padding: 2vh 2vw;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    z-index: 1000;
+}
+#menu-toggle {
+    position: absolute;
+    opacity: 0;
+    width: 24px;   /* (선택) 클릭 영역 보장 */
+    height: 24px;  /* (선택) 클릭 영역 보장 */
+    margin: 0;
+    z-index: 2;    /* 필요시 조정 */
+}
+
+#menu-toggle:checked ~ .sidebar {
+    transform: translateX(0%);
+}
+.sidebar-user {
+    font-size: 2vh;
+    font-weight: bold;
+}
+.sidebar a {
+    text-decoration: none;
+    color: #0f4c81;
+    font-size: 1.8vh;
+}
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+.main-content {
+    width: 100vw;
+    height: 82vh; /* header(10vh) + footer(8vh) 제외 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2vh;
+    box-sizing: border-box;
+    padding: 2vh 0;
+}
+
+.boards-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 96vw;
+    height: 32vh; /* 두 보드의 높이 */
+    gap: 2vw;
+}
+
+#main_packet_board,
+#main_event_board {
+    flex: 1 1 0;
+    min-width: 0;   /* flexbox overflow 방지 */
+    height: 100%;
+    background: #f8fafd;
+    border-radius: 1vh;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1vh 1vw;
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+}
+
+
+.filter-bar {
+    display: flex;
+    gap: 1vw;
+    height: 4.5vh;
+}
+
+.filter-bar input {
+    flex: 1;
+    height: 100%;
+    font-size: 1.6vh;
+}
+
+.filter-bar button {
+    height: 100%;
+    font-size: 1.6vh;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #dcdcdc;
+    padding: 0.5vh 0.5vw;
+    font-weight: bold;
+    font-size: 1.6vh;
+}
+
+.table-header p {
+    flex: 1;
+    text-align: center;
+}
+
+#packet_data {
+    overflow-y: auto;        /* 세로 스크롤 */
+    display: flex;
+    flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* 한 줄(한 패킷)을 flex로 가로 정렬 */
+  .data_table {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.4vh 0.5vw;
+    border-bottom: 1px solid #ccc;
+  }
+  .data_table:hover {
+    filter: brightness(90%);
+}
+  
+  /* 각 셀 */
+  .name_tables {
+    flex: 1; /* 5등분 */
+    text-align: center;
+    font-size: 1.3vh;
+    overflow-wrap: break-word;
+  }
+  
+/* 차트 영역 */
+#main_graph {
+    width: 96vw;
+    height: 40vh;
+    margin: 0 auto;
+    background: white;
+    border-radius: 1vh;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* 수평 중앙 */
+    justify-content: center;  /* 수직 중앙 */
+    padding: 2vh 0;
+    position: relative;
+}
+
+.chart-container {
+    width: 80vw;      /* main_graph보다 약간 작게 */
+    max-width: 1200px;
+    aspect-ratio: 16/9; /* 16:9 비율 유지 (최신 CSS) */
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#dataChart {
+    width: 80% !important;
+    height: 100% !important;
+    display: block;
+    background: transparent;
+}
+
+/* 버튼 위치 조정 (아래에 여백) */
+.reset-btn {
+    margin-top: 2vh;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 1vh 2vw;
+    border-radius: 0.5vh;
+    cursor: pointer;
+    align-self: center;
+}
+
+
+/* 푸터 */
+#main_footer {
+    height: 8vh;
+    width: 100vw;
+    background-color: #0f4c81;
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 1.6vh;
+}
+
+/* add data*/
+
+#event_data {
+    overflow-y: auto;        /* 세로 스크롤 */
+    display: flex;
+    flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+  }

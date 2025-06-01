@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    form {
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>회원가입</h1>
+  <form method="post">
+    <label for="name">이름:</label><br>
+    <input type="text" id="name" name="name" required><br>
+    <label for="username">아이디:</label><br>
+    <input type="text" id="username" name="username" required><br>
+    <label for="password">비밀번호:</label><br>
+    <input type="password" id="password" name="password" required><br>
+    <label for="confirm_password">비밀번호 확인:</label><br>
+    <input type="password" id="confirm_password" name="confirm_password" required><br>
+    <a>Permit</a><br>
+    <select id="permit", name="permit">
+      <option value="User">User</option>
+      <option value="Admin">Admin</option>
+    </select><br>
+    <input type="submit" value="회원가입">
+  </form>
+
+  {% if error %}
+    <p style="color: red">{{ error }}</p>
+  {% endif %}
+  
+  <div class="button-container">
+    <!-- 이전 버튼 -->
+    <a href="/login">
+      <button>이전</button>
+    </a>
+  </div>
+
+  {% if msg %} 
+  <script>
+    alert("{{ msg }}");
+    window.location.href = "/login";
+  </script>
+  {% endif %}
+
+</body>
+</html>

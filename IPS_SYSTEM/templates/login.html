@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    form {
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>로그인</h1>
+
+  <!-- 로그인 폼 -->
+  <form method="post">
+    <label for="username">아이디:</label><br>
+    <input type="text" id="username" name="username" required><br>
+
+    <label for="password">비밀번호:</label><br>
+    <input type="password" id="password" name="password" required><br>
+
+    <input type="submit" value="로그인">
+    
+    {% if error %}
+        <p style="color:red;">{{ error }}</p> 
+    {% endif %}
+    
+   </form>
+
+   <!-- 이전 버튼 -->
+   <div class='button-container'>
+     <a href="/login">
+       <button>이전</button>
+     </a>
+   </div>
+
+   <!-- 회원가입 링크 -->
+   <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+</body>
+</html>

@@ -1,0 +1,166 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Header */
+header {
+    width: 100vw;
+    height: 10vh;
+    background-color: #0f4c81;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2vw;
+    color: white;
+}
+.logo {
+    font-size: 2.5vh;
+    font-weight: bold;
+}
+.header-title {
+    font-size: 3vh;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+.menu-icon {
+    cursor: pointer;
+    font-size: 3vh;
+}
+.sidebar {
+    position: fixed;
+    top: 10vh;
+    right: 0;
+    width: 25vw;
+    height: 90vh;
+    background-color: #ffffff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    padding: 2vh 2vw;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+#menu-toggle {
+    position: absolute;
+    opacity: 0;
+    width: 24px;   /* (선택) 클릭 영역 보장 */
+    height: 24px;  /* (선택) 클릭 영역 보장 */
+    margin: 0;
+    z-index: 2;    /* 필요시 조정 */
+}
+
+#menu-toggle:checked ~ .sidebar {
+    transform: translateX(0%);
+}
+.sidebar-user {
+    font-size: 2vh;
+    font-weight: bold;
+}
+.sidebar a {
+    text-decoration: none;
+    color: #0f4c81;
+    font-size: 1.8vh;
+}
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+
+/* 규칙 보드 */
+.dashboard {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2vh 2vw;
+}
+
+.rule_board {
+    width: 80vw;
+    background-color: white;
+    border-radius: 1vh;
+    padding: 2vh 2vw;
+    box-shadow: 0 0 1vh rgba(0,0,0,0.1);
+}
+
+.rule_title {
+    font-size: 2vh;
+    margin-bottom: 2vh;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+#rule-container {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+    margin-bottom: 2vh;
+}
+
+#rule-container select,
+#rule-container input,
+#rule-container button {
+    height: 5vh;
+    border-radius: 0.5vh;
+    border: 1px solid #ccc;
+}
+
+#rule-container select {
+    width: 10vw;
+}
+
+#rule-container input {
+    width: 45vw;
+    padding: 0 1vw;
+}
+
+#rule-container button {
+    width: 5vh;
+    background-color: #3498db;
+    color: white;
+    font-size: 2vh;
+    cursor: pointer;
+    border: none;
+}
+
+#rule-container button:hover {
+    background-color: #2980b9;
+}
+
+#rule {
+    max-height: 50vh;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    margin-top: 1vh;
+}
+
+#rule li {
+    display: flex;
+    justify-content: space-between;
+    padding: 1vh 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1vw;
+}
+
+.deleteBtn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5vh 1vw;
+    border-radius: 0.5vh;
+    cursor: pointer;
+}
+
+.deleteBtn:hover {
+    background-color: #c0392b;
+}

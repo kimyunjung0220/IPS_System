@@ -1,0 +1,2 @@
+Detect any any - any any [layer : icmp] [msg : ICMP 탐지]
+Detect any any - any any [protocol : icmp] [msg : detect ping]

@@ -1,0 +1,211 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* Header */
+header {
+    width: 100vw;
+    height: 10vh;
+    background-color: #0f4c81;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2vw;
+    color: white;
+}
+.logo {
+    font-size: 2.5vh;
+    font-weight: bold;
+}
+.header-title {
+    font-size: 3vh;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+.menu-icon {
+    cursor: pointer;
+    font-size: 3vh;
+}
+.sidebar {
+    position: fixed;
+    top: 10vh;
+    right: 0;
+    width: 25vw;
+    height: 90vh;
+    background-color: #ffffff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    padding: 2vh 2vw;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+#menu-toggle {
+    position: absolute;
+    opacity: 0;
+    width: 24px;   /* (선택) 클릭 영역 보장 */
+    height: 24px;  /* (선택) 클릭 영역 보장 */
+    margin: 0;
+    z-index: 2;    /* 필요시 조정 */
+}
+
+#menu-toggle:checked ~ .sidebar {
+    transform: translateX(0%);
+}
+.sidebar-user {
+    font-size: 2vh;
+    font-weight: bold;
+}
+.sidebar a {
+    text-decoration: none;
+    color: #0f4c81;
+    font-size: 1.8vh;
+}
+.sidebar a:hover {
+    text-decoration: underline;
+}
+/* 대시보드 구성 */
+.dashboard {
+    display: flex;
+    height: 90vh;
+    padding: 2vh 3vw;
+    gap: 2vw;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* 공통 패널 스타일 */
+.account_board, .rule_board {
+    width: calc((100vw - 8vw) / 2);  /* 정확한 너비 계산 */
+    height: 86vh;
+    background-color: white;
+    border: 0.1vw solid #ccc;
+    border-radius: 1vh;
+    box-shadow: 0 0.5vh 1vh rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.packet_title {
+    font-size: 1.5vw;
+    background-color: #eeeeee;
+    padding: 1vh;
+    border-bottom: 0.1vw solid #ccc;
+}
+
+/* 입력 영역 */
+#account-container, #rule-container {
+    display: flex;
+    align-items: center;
+    padding: 1vh;
+    gap: 0.8vw;
+    background-color: #f0f0f0;
+    flex-wrap: wrap;
+}
+
+#account-container input,
+#account-container select {
+    height: 4vh;
+    font-size: 1vw;
+    padding: 0 0.5vw;
+    border: 0.1vw solid #ccc;
+    border-radius: 0.5vh;
+    flex: 1;
+    min-width: 5vw;
+    max-width: 15vw;
+}
+
+#ipInput {
+    width: 40vw;
+    height: 4vh;
+    font-size: 1vw;
+    padding: 0 0.5vw;
+    border: 0.1vw solid #ccc;
+    border-radius: 0.5vh;
+    flex: 1;
+}
+
+
+#account-container select {
+    width: 7vw;
+}
+
+#account-container button,
+#rule-container button {
+    height: 4vh;
+    font-size: 1vw;
+    padding: 0 1vw;
+    white-space: nowrap;
+}
+
+#account-container button:hover,
+#rule-container button:hover {
+    background-color: #00897b;
+}
+
+table {
+    width: 100%;
+    table-layout: fixed; /* 고정 레이아웃 적용 */
+    border-collapse: collapse;
+    font-size: 1vw;
+    margin-top: 1vh;
+}
+
+th, td {
+    padding: 1vh;
+    border: 0.1vw solid #ccc;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+th {
+    background-color: #e0e0e0;
+}
+
+.delete-link {
+    color: #e74c3c;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delete-link:hover {
+    text-decoration: underline;
+}
+
+.setting, .deleteBtn {
+    padding: 0.5vh 1vw;
+    border: none;
+    border-radius: 0.5vh;
+    font-size: 1vw;
+    cursor: pointer;
+}
+
+.setting {
+    background-color: #3cb7e7;
+    color: white;
+}
+
+.setting:hover {
+    background-color: #2a93c8;
+}
+
+.deleteBtn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background-color: #c0392b;
+}

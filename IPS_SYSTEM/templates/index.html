@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPS Firewall</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">IPS System</div>
+        <div class="header-title">Network Monitor</div>
+        <div class="user-info">
+            <span>{{ username or "Error" }} | {{ userpermit or "Error" }}</span>
+            <div class="menu">
+                <input type="checkbox" id="menu-toggle">
+                <label for="menu-toggle" class="menu-icon">☰</label>
+                <div class="sidebar">
+                    <p class="sidebar-user">{{ username or "Error" }}</p>
+                    <a href="/logout">로그아웃</a>
+                    <a href="/rule">규칙 관리</a>
+                    {% if Admin %}
+                    <a href="/admin_pages">관리자 페이지</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="main-content">
+        <div class="boards-row">
+    <div id="main_packet_board">
+        <h2>패킷 목록</h2>
+        <div class="filter-bar">
+            <input type="text" id="packetFilter" placeholder="예: TCP, UDP, ICMP">
+            <button id="applyPacketFilter">🔍</button>
+        </div>
+        <div class="table-header">
+            <p>Source</p><p>Destination</p><p>Port</p><p>Protocol</p><p>Length</p>
+        </div>
+        <div id="packet_data" class="data-table"></div>
+    </div>
+
+    <div id="main_event_board">
+        <h2>이벤트 목록</h2>
+        <div class="filter-bar">
+            <input type="text" id="eventFilter" placeholder="예: TCP, UDP, ICMP">
+            <button id="applyEventFilter">🔍</button>
+        </div>
+        <div class="table-header">
+            <p>시간</p><p>타입</p><p>내용</p><p>요청자</p><p>자세히</p>
+        </div>
+        <div id="event_data" class="data-table"></div>
+    </div>
+</div>
+    <div id="main_graph">
+        <canvas id="dataChart"></canvas>
+        <button class="reset-btn" onclick="resetZoom()">차트 초기화</button>
+    </div>
+</div>
+    <div id="main_footer">
+        <div class="footer-item">Version: 1.0</div>
+        <div class="footer-item">IP: {{ cip or "Error" }}</div>
+        <div class="footer-item">CPU 사용량</div>
+        <div class="footer-item">MEM 사용량</div>
+    </div>
+</body>
+</html>
