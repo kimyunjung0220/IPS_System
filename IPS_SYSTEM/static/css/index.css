@@ -240,3 +240,7 @@ header {
     flex-direction: column;
     width: 100%;
   }
+
+#cpu, #mem {
+    font-family: monospace;
+}

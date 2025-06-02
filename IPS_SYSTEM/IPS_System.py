@@ -521,7 +521,7 @@ def check_rule(rule : str = None, input_rule : str = None, data : dict = None):
         return msg
     else:
         add_rule_list(rule=rule, input_rule=input_rule)
-from time import sleep       
+     
 import psutil
 def hw_info():
     while True:
@@ -533,7 +533,7 @@ def hw_info():
         bytes_sent = net2.bytes_sent - net1.bytes_sent
         bytes_recv = net2.bytes_recv - net1.bytes_recv
         total_bytes = bytes_sent + bytes_recv
-        total_mb = total_bytes / (1024**2)
+        total_mb = total_bytes / (1024)
         
         
         used_gb = mem.used / (1024**3)
@@ -541,11 +541,10 @@ def hw_info():
         
         data = {
             "cpu" : cpu,
-            "mem" : f"{used_gb:.2f}/{total_gb:.2f} GB",
-            "net" : f"{total_mb:.2f} MB/s"
+            "mem" : f"{used_gb:.2f}/{total_gb:.2f}",
+            "net" : f"{total_mb:.2f}"
         }
         socketio.emit('send_hw_info', {'data' : data})
-        #socketio.emit('send_hw_info', {'data' : data}, namespace="/hw_info")
     
 def add_rule_list(rule, input_rule):
     with open("data/offensive/rule", 'a') as f:

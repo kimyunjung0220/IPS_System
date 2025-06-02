@@ -1,12 +1,37 @@
 
 //Socket IO
+//{ cpu: 15.7, mem: "3.19/7.71 GB", net: "0.00 MB/s" }
 const socket = io();
 socket.on('send_hw_info', (msg) => {
     console.log(msg.data);
-    cpu = msg.data['cpu'];
-    mem = msg.data['mem'];
-    net = msg.data['net'];
+
+    let cpu = Number(msg.data['cpu']);
+    let mem = msg.data['mem'];
+    let net = Number(msg.data['net']);  // 숫자로 변환 (혹시 모르니 안전하게)
+
     console.log(cpu, mem, net);
+
+    // CPU/RAM UI 업데이트
+    const cpu_el = document.getElementById('cpu_usage');
+    const mem_el = document.getElementById('mem_usage');
+    cpu = cpu.toFixed(1).padStart(5, ' ');
+    cpu_el.textContent = `CPU: ${cpu}%`;
+    mem_el.textContent = `RAM : ${mem}`;
+
+    // === 차트에 net 데이터 추가 ===
+    const now = new Date();
+    const label = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+    const chart = window.chart;
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(net);
+
+    // x축을 최신 데이터 기준으로 이동
+    const total = chart.data.labels.length;
+    chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
+    chart.options.scales.x.max = total - 1;
+
+    chart.update();
 });
 
 socket.on('send_packet', (msg) => {
@@ -203,41 +228,27 @@ function updateEventDisplay(time,Type, Msg, user, value){
         }
     });
 }
-
+let MAX_VIEW = 10; // 한 번에 보이는 데이터 개수
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('dataChart').getContext('2d');
-    const MAX_VIEW = 10; // 한 번에 보이는 데이터 개수
-    const TOTAL_DATA = 50; // 시작 데이터 개수
 
-    // 초기 데이터 생성
+    // 초기 데이터 생성 - 빈 상태
     const labels = [];
     const data = [];
-    const now = new Date();
-    for (let i = 0; i < TOTAL_DATA; i++) {
-        const t = new Date(now.getTime() - (TOTAL_DATA - i - 1) * 3000);
-        labels.push(
-            `${t.getHours()}:${t.getMinutes().toString().padStart(2, '0')}:${t.getSeconds().toString().padStart(2, '0')}`
-        );
-        data.push(Math.floor(Math.random() * 2000));
-    }
 
     // 마우스 휠 스크롤 처리 커스텀 이벤트 핸들러
     function wheelHandler(e) {
-        // 휠 이벤트 방지
         e.preventDefault();
-        
+
         const delta = e.deltaY > 0 ? 1 : -1; // 휠 방향 감지
         const step = 2; // 스크롤 스텝 크기
-        
-        // 현재 x축 범위
-        const minIndex = chart.options.scales.x.min;
-        const maxIndex = chart.options.scales.x.max;
-        
-        // 새 범위 계산 (휠 방향에 따라 좌우로 이동)
+
+        const minIndex = chart.options.scales.x.min ?? 0;
+        const maxIndex = chart.options.scales.x.max ?? (chart.data.labels.length - 1);
+
         const newMin = Math.max(0, minIndex + delta * step);
         const newMax = Math.min(chart.data.labels.length - 1, maxIndex + delta * step);
-        
-        // 범위가 유효하면 적용
+
         if (newMax - newMin >= 5 && newMin >= 0 && newMax < chart.data.labels.length) {
             chart.options.scales.x.min = newMin;
             chart.options.scales.x.max = newMax;
@@ -245,13 +256,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 차트 생성
+    // 차트 생성 (min, max 제거)
     window.chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: '데이터 크기 (byte)',
+                label: '데이터 크기 (kb/s)',
                 data: data,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -270,44 +281,22 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             scales: {
                 x: {
-                    title: { display: true, text: '시간 (시:분:초)' },
-                    min: TOTAL_DATA - MAX_VIEW, // 처음에는 오른쪽 10개만 보이게
-                    max: TOTAL_DATA - 1 
+                    title: { display: true, text: '시간 (시:분:초)' }
+                    // min, max 설정 제거
                 },
                 y: {
                     min: 0,
-                    max: 2000,
-                    ticks: { stepSize: 200 },
+                    max: 5000,
+                    ticks: { stepSize: 500 },
                     title: { display: true, text: '데이터 크기 (byte)' }
                 }
             }
         }
     });
-    
-    // 캔버스에 마우스 휠 이벤트 리스너 추가
+
     ctx.canvas.addEventListener('wheel', wheelHandler, { passive: false });
 
-    // 랜덤 간격으로 데이터 추가 (1~5초)
-    /*function addRandomData() {
-        const t = new Date();
-        const newLabel = `${t.getHours()}:${t.getMinutes().toString().padStart(2, '0')}:${t.getSeconds().toString().padStart(2, '0')}`;
-        const newValue = Math.floor(Math.random() * 2000);
-
-        chart.data.labels.push(newLabel);
-        chart.data.datasets[0].data.push(newValue);
-
-        // 자동 스크롤하려면 다음 줄 주석 해제
-        chart.options.scales.x.min++;
-        chart.options.scales.x.max++;
-
-        chart.update();
-
-        const nextInterval = Math.floor(Math.random() * 5 + 1) * 1000;
-        setTimeout(addRandomData, nextInterval);
-    }
-    addRandomData();
-*/
-    // 초기 위치로 되돌리기
+    // resetZoom 함수 (실시간 데이터 수에 따라 동적 설정)
     window.resetZoom = function() {
         const total = chart.data.labels.length;
         chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
@@ -315,3 +304,4 @@ document.addEventListener('DOMContentLoaded', function() {
         chart.update();
     };
 });
+
