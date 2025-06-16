@@ -182,12 +182,28 @@ def detective_opensive(data, func):
             elif flag == "Drop":
                 send_msg = f"{time}\nBlock!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
                 func(time, flag, msg, "System", send_msg)
+                
                 #f"iptables -A INPUT -s {sip} -j DROP"
-                #f"iptables -A PREROUTING -s {sip} -j DROP"
+                
+                iptables_cmd = ["iptables", "-A", "INPUT", "-s", sip, "-j", "DROP"]
+
+                try:
+                    subprocess.run(iptables_cmd, check=True)
+                except:
+                    msg = "Failed! Full resource!"
 
             elif flag == "Detect-Drop":
-                pass
-
+                send_msg = f"{time}\nDetect and Block!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
+                func(time, flag, msg, "System", send_msg)
+                
+                #f"iptables -A INPUT -s {sip} -j DROP"
+                
+                iptables_cmd = ["iptables", "-A", "INPUT", "-s", sip, "-j", "DROP"]
+                
+                try:
+                    subprocess.run(iptables_cmd, check=True)
+                except:
+                    error = "Failed! Full resource!"
             else:
                 msg = "error"
 
