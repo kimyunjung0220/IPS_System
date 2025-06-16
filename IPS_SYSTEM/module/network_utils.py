@@ -145,8 +145,15 @@ def detective_opensive(data, func):
                         Mkey, Mvalue = option
                         Mkey = Mkey.strip().title()
                         Mvalue = Mvalue.strip()
-
-                        if not Mkey == "Content":
+                        if Mkey == "Flags":
+                            flags = re.search(r'\((.*?)\)', packet[layer][Mkey]).group(1)
+                            flags = flags.replace(" ", "").lower()
+                            flags = flags.split(",")
+                            flags = set(flags)
+                            Mvalue = set(Mvalue.replace(" ", "").lower().split(","))
+                            if flags == Mvalue:
+                                detect = True
+                        elif not Mkey == "Content":
                             val = packet[layer][Mkey]
                             if Mvalue in val:
                                 detect = True
