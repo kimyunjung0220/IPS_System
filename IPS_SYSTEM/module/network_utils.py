@@ -157,7 +157,7 @@ def detective_opensive(data, func):
                     if not detect:
                         break
             except KeyError as e:
-                return
+                continue
         #Detect, Drop, Detect-Drop
         if detect:
             time = datetime.now().strftime('%H:%M:%S.%f')[:-3]
