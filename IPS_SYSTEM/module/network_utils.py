@@ -189,6 +189,7 @@ def detective_opensive(data, func):
                 send_msg = f"{time}\nDetect!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
                 func(time, flag, msg, "System", send_msg)
                 block = False
+                continue
  
             elif flag == "Drop":
                 send_msg = f"{time}\nBlock!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
