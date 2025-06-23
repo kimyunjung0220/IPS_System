@@ -152,6 +152,33 @@ header {
     flex-direction: column;
     width: 100%;
   }
+
+  .packet-row:hover, .event-row:hover {
+  filter: brightness(90%);
+}
+
+  .packet-row, .event-row {
+  display: flex;
+  flex-direction: row;
+  background: #e0e0e0;
+  border-bottom: 1px solid #ccc;
+}
+
+.packet-cell, .event-cell {
+  flex: 1;
+  padding: 6px 8px;
+  text-align: center;
+  border-right: 1px solid #eee;
+  word-break: break-all;
+}
+
+.packet-cell:hover, .event-cell:hover {
+    filter: brightness(90%);
+}
+
+.packet-cell:last-child, .event-cell:last-child {
+  border-right: none;
+}
   
   /* 한 줄(한 패킷)을 flex로 가로 정렬 */
   .data_table {

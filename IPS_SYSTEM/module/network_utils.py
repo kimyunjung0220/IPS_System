@@ -7,6 +7,7 @@ import logging
 import os
 from datetime import datetime
 from time import sleep
+import subprocess
 #<-----------------------------------------------------Packet Process------------------------------------------------------------>
 
 logging.basicConfig(level=logging.CRITICAL)
@@ -126,7 +127,6 @@ def detective_opensive(data, func):
             for option in rules[6:len(rules)-2]:
                 detect = False
                 if not "Content" in option[0]:
-                    print("너무 많은 인수 ")
                     break
                 Mvalue = option[1]
                 for key in packet.keys():
@@ -167,6 +167,16 @@ def detective_opensive(data, func):
                 continue
         #Detect, Drop, Detect-Drop
         if detect:
+            final = ""
+            try:
+                with open(f"{USER_PATH}/data/offensive/rules.sh", 'r') as f:
+                    line = f.readlines()
+    
+                for rules in line[:12]:
+                    final += rules
+            except:
+                pass
+ 
             time = datetime.now().strftime('%H:%M:%S.%f')[:-3]
             """data = {
                 "time" : time,
@@ -178,34 +188,38 @@ def detective_opensive(data, func):
             if flag == "Detect":
                 send_msg = f"{time}\nDetect!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
                 func(time, flag, msg, "System", send_msg)
-
+                block = False
+ 
             elif flag == "Drop":
                 send_msg = f"{time}\nBlock!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
-                func(time, flag, msg, "System", send_msg)
-                
                 #f"iptables -A INPUT -s {sip} -j DROP"
-                
-                iptables_cmd = ["iptables", "-A", "INPUT", "-s", sip, "-j", "DROP"]
-
-                try:
-                    subprocess.run(iptables_cmd, check=True)
-                except:
-                    msg = "Failed! Full resource!"
-
+                iptables_cmd =  f"iptables -A INPUT -s {sip} -j DROP\n"
+                block = True
+ 
+ 
             elif flag == "Detect-Drop":
                 send_msg = f"{time}\nDetect and Block!\nrule: {raw_input}\nsrc_ip: {sip}\nsrc_port: {sport}\ndst_ip: {dip}\ndst_port: {dport}"
-                func(time, flag, msg, "System", send_msg)
-                
                 #f"iptables -A INPUT -s {sip} -j DROP"
-                
-                iptables_cmd = ["iptables", "-A", "INPUT", "-s", sip, "-j", "DROP"]
-                
-                try:
-                    subprocess.run(iptables_cmd, check=True)
-                except:
-                    error = "Failed! Full resource!"
+                iptables_cmd =  f"iptables -A INPUT -s {sip} -j DROP\n"
+                block = True
             else:
                 msg = "error"
+                continue
+            print("deteced!", send_msg)
+            try:
+                if (not iptables_cmd in line) and block:
+                    if sip not in open('data/AccessList/Access_list.csv', 'r').read().split():
+                        final += iptables_cmd
+                        for rules in line[12:]:
+                            final += rules
+    
+                        with open(f"{USER_PATH}/data/offensive/rules.sh", 'w') as f:
+                            f.write(final)
+                        print(final)
+                        subprocess.run(["bash", f"{USER_PATH}/data/offensive/rules.sh"])
+            except:
+                pass
+            func(time, flag, msg, "System", send_msg)
 
 def init_memory():
     rule_memory.memory = []

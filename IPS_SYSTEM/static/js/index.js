@@ -1,120 +1,159 @@
+// 전역 변수 초기화
+let allPackets = [];
+let currentFilter = "";
+let allEvents = [];
+let currentEventFilter = "";
+let userInteracting = false;
+let autoReturnTimer = null;
 
-//Socket IO
-//{ cpu: 15.7, mem: "3.19/7.71 GB", net: "0.00 MB/s" }
-const socket = io();
-socket.on('send_hw_info', (msg) => {
-    console.log(msg.data);
+document.addEventListener('DOMContentLoaded', function() {
+    // Socket: Hardware 정보 갱신
+    const socket = io();
+    
+    socket.on('send_hw_info', (msg) => {
+    const cpu = Number(msg.data.cpu);
+    const mem = msg.data.mem;
+    const net = Number(msg.data.net);  // 문자열이지만 숫자 변환 가능
 
-    let cpu = Number(msg.data['cpu']);
-    let mem = msg.data['mem'];
-    let net = Number(msg.data['net']);  // 숫자로 변환 (혹시 모르니 안전하게)
+    document.getElementById('cpu_usage').innerText = `CPU 사용량: ${cpu.toFixed(1)}%`;
+    document.getElementById('mem_usage').innerText = `MEM 사용량: ${mem}`;
 
-    console.log(cpu, mem, net);
+    if (!isNaN(net)) {
+        chart.data.labels.push(new Date().toLocaleTimeString());
+        chart.data.datasets[0].data.push(net);
 
-    // CPU/RAM UI 업데이트
-    const cpu_el = document.getElementById('cpu_usage');
-    const mem_el = document.getElementById('mem_usage');
-    cpu = cpu.toFixed(1).padStart(5, ' ');
-    cpu_el.textContent = `CPU: ${cpu}%`;
-    mem_el.textContent = `RAM : ${mem}`;
+        const total = chart.data.labels.length;
 
-    // === 차트에 net 데이터 추가 ===
-    const now = new Date();
-    const label = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
-    const chart = window.chart;
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(net);
-
-    // x축을 최신 데이터 기준으로 이동
-    const total = chart.data.labels.length;
-    chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
-    chart.options.scales.x.max = total - 1;
-
-    chart.update();
+        if (!userInteracting) {
+            chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
+            chart.options.scales.x.max = total - 1;
+        }
+        chart.update();
+    } else {
+        console.warn("수신된 net 값이 NaN입니다:", msg.data.net);
+    }
 });
 
-socket.on('send_packet', (msg) => {
-    const raw_data = msg.data;
-    let json_data = raw_data;
-    let SIP, DIP, PROTOCOL,PORT, LENGTH
-    try{
-        var packet_data = JSON.parse(json_data);
-        if(Object.keys(packet_data)[1] === "Layer IP"){
-            SIP = packet_data["Layer IP"]["Source Address"];
-            DIP = packet_data["Layer IP"]["Destination Address"]
-            PROTOCOL =  packet_data["Layer IP"]["Protocol"].split(" ")[1];
-            PORT = packet_data["Layer " + PROTOCOL]["Destination Port"];
-            LENGTH = new TextEncoder();
-            LENGTH = LENGTH.encode(json_data).length;
-        }
-        else{
-            PROTOCOL = Object.keys(packet_data)[1].split(" ")[1];
-            allValues = packet_data["Layer "+PROTOCOL];
+// 패킷 목록 검색 기능
+document.getElementById('applyPacketFilter').addEventListener('click', function() {
+    const filterValue = document.getElementById('packetFilter').value.trim().toUpperCase();
+    const parentDiv = document.getElementById('packet_data');
+    const rowDivs = parentDiv.getElementsByClassName('packet-row'); // 반드시 row 단위
 
-            SIP = Object.entries(allValues).filter(
-            ([key, value]) => key.toLowerCase().includes('sender ip') || key.toLowerCase().includes('source')
-            ).map(([key, value]) => value);
-
-            DIP = Object.entries(allValues).filter(
-            ([key, value]) => key.toLowerCase().includes('Destination')).map(([key, value]) => value);
-
-            PORT = null;
-            LENGTH = new TextEncoder();
-            LENGTH = LENGTH.encode(json_data).length;
-
-            if (SIP === undefined) {
-                SIP = null;
+    for (let i = 0; i < rowDivs.length; i++) {
+        // row 전체의 텍스트를 합쳐서 필터링
+        const text = rowDivs[i].innerText.toUpperCase();
+        if (!filterValue) {
+            rowDivs[i].style.display = 'flex'; // flex로 설정
+        } else {
+            if (text.indexOf(filterValue) > -1) {
+                rowDivs[i].style.display = 'flex';
+            } else {
+                rowDivs[i].style.display = 'none';
             }
         }
     }
-    catch(e){
-        return;
-    }
-    updatePacketDisplay(SIP,DIP,PROTOCOL,PORT,LENGTH, packet_data);
 });
 
-function updatePacketDisplay(sip, dip, protocol, port, Length, packet_data) {
+// 이벤트 목록 검색 기능
+document.getElementById('applyEventFilter').addEventListener('click', function() {
+    const filterValue = document.getElementById('eventFilter').value.trim().toUpperCase();
+    const parentDiv = document.getElementById('event_data');
+    const rowDivs = parentDiv.getElementsByClassName('event-row');
 
-    let SIP, DIP,PROTOCOL,PORT,LENGTH;
-    SIP = sip;
-    DIP = dip;
-    PROTOCOL = protocol;
-    PORT = port;
-    LENGTH = Length;
-    packet_data = packet_data;
+    for (let i = 0; i < rowDivs.length; i++) {
+        const text = rowDivs[i].innerText.toUpperCase();
+        if (!filterValue) {
+            rowDivs[i].style.display = 'flex';
+        } else {
+            if (text.indexOf(filterValue) > -1) {
+                rowDivs[i].style.display = 'flex';
+            } else {
+                rowDivs[i].style.display = 'none';
+            }
+        }
+    }
+});
 
-    const dataElement = document.getElementById("packet_data");
-    const newDiv = document.createElement('div');
-    newDiv.className = "data_table";
-    newDiv.style.backgroundColor = "#e0e0e0";
-    
-    if(protocol === "ICMP"){
-        newDiv.style.backgroundColor = "#e8e9a8";
+
+
+
+    socket.on('send_packet', (msg) => {
+    let packetData = msg.data;
+    let parsedData;
+
+    try {
+        parsedData = JSON.parse(packetData);
+    } catch (e) {
+        console.error("JSON 파싱 실패:", e);
+        return;
     }
 
-    const sipdiv = document.createElement('div');
-    const dipdiv = document.createElement('div');
-    const portdiv = document.createElement('div');
-    const protocoldiv = document.createElement('div');
-    const lengthdiv = document.createElement('div');
+    let SIP = "-", DIP = "-", PROTOCOL = "-", PORT = "-", LENGTH = "-";
 
-    sipdiv.textContent = SIP;
-    dipdiv.textContent = DIP;
-    portdiv.textContent = PORT;
-    protocoldiv.textContent = PROTOCOL;
-    lengthdiv.textContent = LENGTH;
+    try {
+        if (Object.keys(parsedData)[1] === "Layer IP") {
+            SIP = parsedData["Layer IP"]["Source Address"];
+            DIP = parsedData["Layer IP"]["Destination Address"];
+            PROTOCOL = parsedData["Layer IP"]["Protocol"].split(" ")[1];
+            PORT = parsedData["Layer " + PROTOCOL]?.["Destination Port"] || "-";
+        } else {
+            PROTOCOL = Object.keys(parsedData)[1].split(" ")[1];
+            let layerData = parsedData["Layer " + PROTOCOL];
+            SIP = Object.entries(layerData).find(([k]) => k.toLowerCase().includes("sender ip") || k.toLowerCase().includes("source"))?.[1] || "-";
+            DIP = Object.entries(layerData).find(([k]) => k.toLowerCase().includes("destination"))?.[1] || "-";
+            PORT = "-";
+        }
 
-    sipdiv.className = "name_tables";
-    dipdiv.className = "name_tables";
-    portdiv.className = "name_tables";
-    protocoldiv.className = "name_tables";
-    lengthdiv.className = "name_tables";
+        LENGTH = new TextEncoder().encode(packetData).length;
+    } catch (e) {
+        console.error("패킷 파싱 중 오류:", e);
+        return;
+    }
 
-    newDiv.append(sipdiv, dipdiv, portdiv, protocoldiv, lengthdiv);
-    dataElement.appendChild(newDiv);
+    // 전체 패킷 저장
+    const packet = { sip: SIP, dip: DIP, protocol: PROTOCOL, port: PORT, length: LENGTH, raw: parsedData };
+    allPackets.push(packet);
+    
+    // 필터 조건 충족 시만 화면에 출력
+    if (!currentFilter || PROTOCOL.toLowerCase().includes(currentFilter)) {
+        updatePacketDisplay(SIP, DIP, PROTOCOL, PORT, LENGTH, parsedData);
+    }
+});
 
-    newDiv.addEventListener("click", function () {
+});
+
+function updatePacketDisplay(sip, dip, protocol, port, length, packet_data) {
+    const dataElement = document.getElementById("packet_data");
+    const rowDiv = document.createElement('div');
+    rowDiv.className = "packet-row";
+    if (protocol === "ICMP") rowDiv.style.backgroundColor = "#e8e9a8";
+
+    // 각 필드를 셀로 분리
+    const sipDiv = document.createElement('div');
+    sipDiv.className = "packet-cell";
+    sipDiv.textContent = sip;
+
+    const dipDiv = document.createElement('div');
+    dipDiv.className = "packet-cell";
+    dipDiv.textContent = dip;
+
+    const portDiv = document.createElement('div');
+    portDiv.className = "packet-cell";
+    portDiv.textContent = port;
+
+    const protocolDiv = document.createElement('div');
+    protocolDiv.className = "packet-cell";
+    protocolDiv.textContent = protocol;
+
+    const lengthDiv = document.createElement('div');
+    lengthDiv.className = "packet-cell";
+    lengthDiv.textContent = length;
+
+    rowDiv.append(sipDiv, dipDiv, portDiv, protocolDiv, lengthDiv);
+    dataElement.appendChild(rowDiv);
+
+    rowDiv.addEventListener("click", function () {
         const newWindow = window.open("", "_blank", "width=600,height=600");
         if (newWindow) {
             const formattedText = formatPacketData(packet_data);
@@ -123,8 +162,8 @@ function updatePacketDisplay(sip, dip, protocol, port, Length, packet_data) {
 <head>
 <title>Packet Detail</title>
 <style>
-                    body { font-family: monospace; white-space: pre-wrap; background: #f4f4f4; padding: 1em; color: #333; }
-                    h2 { color: #0f4c81; }
+    body { font-family: monospace; white-space: pre-wrap; background: #f4f4f4; padding: 1em; color: #333; }
+    h2 { color: #0f4c81; }
 </style>
 </head>
 <body>
@@ -139,6 +178,7 @@ function updatePacketDisplay(sip, dip, protocol, port, Length, packet_data) {
         }
     });
 }
+
  
 function formatPacketData(packet_data) {
     let result = "";
@@ -180,54 +220,50 @@ socket_event.on('event_list', (msg) =>{
     updateEventDisplay(time,Type, Msg, user, value);
 })
 
-function updateEventDisplay(time,Type, Msg, user, value){
-
+function updateEventDisplay(time, Type, Msg, user, value) {
     const dataElement = document.getElementById("event_data");
-    const newDiv = document.createElement('div');
-    newDiv.className = "data_table";
-    newDiv.style.backgroundColor = "#e0e0e0";
+    const rowDiv = document.createElement('div');
+    rowDiv.className = "event-row";
+    if (Type === "Detect") rowDiv.style.backgroundColor = "#f89090";
 
-    const sipdiv = document.createElement('div');
-    const dipdiv = document.createElement('div');
-    const portdiv = document.createElement('div');
-    const protocoldiv = document.createElement('div');
-    const lengthdiv = document.createElement('div');
+    const timeDiv = document.createElement('div');
+    timeDiv.className = "event-cell";
+    timeDiv.textContent = time;
 
-    sipdiv.textContent = time;
-    dipdiv.textContent = Type;
-    portdiv.textContent = Msg;
-    protocoldiv.textContent = user;
-    lengthdiv.textContent = "내용 확인";
+    const typeDiv = document.createElement('div');
+    typeDiv.className = "event-cell";
+    typeDiv.textContent = Type;
 
-    sipdiv.className = "name_tables";
-    dipdiv.className = "name_tables";
-    portdiv.className = "name_tables";
-    protocoldiv.className = "name_tables";
-    lengthdiv.className = "name_tables";
+    const msgDiv = document.createElement('div');
+    msgDiv.className = "event-cell";
+    msgDiv.textContent = Msg;
 
-    if(Type === "Detect"){
-        newDiv.style.backgroundColor = "#f89090";
-    }
+    const userDiv = document.createElement('div');
+    userDiv.className = "event-cell";
+    userDiv.textContent = user;
 
-    newDiv.append(sipdiv, dipdiv, portdiv, protocoldiv, lengthdiv);
-    dataElement.appendChild(newDiv);
+    const detailDiv = document.createElement('div');
+    detailDiv.className = "event-cell";
+    detailDiv.textContent = "내용 확인";
 
-    newDiv.addEventListener("click", function () {
+    rowDiv.append(timeDiv, typeDiv, msgDiv, userDiv, detailDiv);
+    dataElement.appendChild(rowDiv);
+
+    rowDiv.addEventListener("click", function () {
         const newWindow = window.open("", "_blank", "width=600,height=600");
-
-        if (newWindow) {;
+        if (newWindow) {
             newWindow.document.body.style.backgroundColor = "#0f4c81";
             const pre = newWindow.document.createElement("div");
             pre.style = "white-space: pre;";
             pre.style.color = "white";
-            pre.textContent=value;
-
+            pre.textContent = value;
             newWindow.document.body.appendChild(pre);
         } else {
             alert("팝업 차단이 되어 있어 새 창을 열 수 없습니다.");
         }
     });
 }
+
 let MAX_VIEW = 10; // 한 번에 보이는 데이터 개수
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('dataChart').getContext('2d');
@@ -239,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 마우스 휠 스크롤 처리 커스텀 이벤트 핸들러
     function wheelHandler(e) {
         e.preventDefault();
+        onUserPanOrZoom(); // 추가
 
         const delta = e.deltaY > 0 ? 1 : -1; // 휠 방향 감지
         const step = 2; // 스크롤 스텝 크기
@@ -255,6 +292,24 @@ document.addEventListener('DOMContentLoaded', function() {
             chart.update();
         }
     }
+    
+// 팬/줌 이벤트 감지
+function onUserPanOrZoom() {
+    userInteracting = true;
+    if (autoReturnTimer) clearTimeout(autoReturnTimer);
+    autoReturnTimer = setTimeout(() => {
+        userInteracting = false;
+        moveToLatest();
+    }, 5000);
+}
+
+// 최신 데이터로 이동
+function moveToLatest() {
+    const total = chart.data.labels.length;
+    chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
+    chart.options.scales.x.max = total - 1;
+    chart.update();
+}
 
     // 차트 생성 (min, max 제거)
     window.chart = new Chart(ctx, {
@@ -266,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: data,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: true,
+                fill: false,
                 tension: 0.4,
                 pointRadius: 2,
                 pointHoverRadius: 5
@@ -290,18 +345,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     ticks: { stepSize: 500 },
                     title: { display: true, text: '데이터 크기 (byte)' }
                 }
+            },
+            plugins: {
+            zoom: {
+                pan: { enabled: true, mode: 'x' },
+                zoom: { enabled: true, mode: 'x' },
+                onPan: onUserPanOrZoom,
+                onZoom: onUserPanOrZoom
             }
+        }
         }
     });
 
     ctx.canvas.addEventListener('wheel', wheelHandler, { passive: false });
 
-    // resetZoom 함수 (실시간 데이터 수에 따라 동적 설정)
-    window.resetZoom = function() {
-        const total = chart.data.labels.length;
-        chart.options.scales.x.min = Math.max(0, total - MAX_VIEW);
-        chart.options.scales.x.max = total - 1;
-        chart.update();
-    };
 });
 

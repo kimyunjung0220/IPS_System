@@ -209,3 +209,35 @@ th {
 .deleteBtn:hover {
     background-color: #c0392b;
 }
+
+#del_member_btn{
+    width: 11.4vw;
+    height: 4.5vh;
+    padding: 0.5vh 1vw;
+    border: none;
+    border-radius: 0.5vh;
+    font-size: 1vw;
+    color: white;
+    background-color: #e74c3c;
+    border: 0.1vw solid #503c3c;
+    cursor: pointer;
+    align-items: center;
+}
+
+#del_ip_btn {
+    width: 8.6vw;
+    height: 4.5vh;
+    padding: 0.5vh 1vw;
+    border: none;
+    border-radius: 0.5vh;
+    font-size: 1vw;
+    color: white;
+    background-color: #e74c3c;
+    border: 0.1vw solid #503c3c;
+    cursor: pointer;
+    align-items: center;
+}
+
+#del_member_btn:hover, #del_ip_btn:hover{
+    background-color: #c0392b;
+}

@@ -489,6 +489,7 @@ def check_rule(rule : str = None, input_rule : str = None, data : dict = None):
     try:
         src_ip, src_port, target, des_ip, des_port, layer = input_rule.split(" ")[:6]
         layer = layer.lower()[1:]
+        print(src_ip, src_port, target, des_ip, des_port, layer)
     except ValueError as e:
         msg = f"잘못된 규칙 {e}"
         return msg
@@ -511,7 +512,7 @@ def check_rule(rule : str = None, input_rule : str = None, data : dict = None):
     if not (target == "-"):
         msg = "Target Error"
 
-    if not ((src_port == None and des_port == None) or (src_port >= 0 and src_port <= 65535) and (des_port >= 0 and des_port <= 65535)):
+    if not ((src_port is None or (0 <= src_port <= 65535)) and (des_port is None or (0 <= des_port <= 65535))):
         msg = "Port range Error"
 
     if not ("layer" in layer or "protocol" in layer or "content" in layer):
